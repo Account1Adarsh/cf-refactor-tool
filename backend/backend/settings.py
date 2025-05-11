@@ -79,8 +79,10 @@ MIDDLEWARE = [
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 
 # CORS_ALLOW_ALL_ORIGINS = True  # This allows requests from any domain // not for production
+CORS_ALLOW_ALL_ORIGINS = False  # Ensure that we are not allowing all origins
 CORS_ALLOWED_ORIGINS = [
     "https://cf-refactor-tool.vercel.app",  # Your frontend URL
+    "http://localhost:3000",               # For local development
 ]
 
 # CORS_ALLOWED_ORIGINS = os.environ.get("CORS_ALLOWED_ORIGINS", "").split(",")
