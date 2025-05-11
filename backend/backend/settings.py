@@ -75,8 +75,9 @@ MIDDLEWARE = [
 ]
 # CORS_ALLOW_ALL_ORIGINS = True  # This allows requests from any domain // not for production
 CORS_ALLOWED_ORIGINS = [
-    "https://cf-refactor-tool.vercel.app",
+    "https://cf-refactor-tool.vercel.app",  # Your frontend URL
 ]
+
 # CORS_ALLOWED_ORIGINS = os.environ.get("CORS_ALLOWED_ORIGINS", "").split(",")
 MIDDLEWARE.insert(1, "whitenoise.middleware.WhiteNoiseMiddleware")
 
