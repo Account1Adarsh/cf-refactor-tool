@@ -44,6 +44,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 load_dotenv(BASE_DIR / '.env')
 
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
+print(os.getenv("DATABASE_URL"))
 
 
 # Application definition
@@ -82,7 +83,7 @@ STATIC_ROOT = BASE_DIR / 'staticfiles'
 CORS_ALLOW_ALL_ORIGINS = False  # Ensure that we are not allowing all origins
 CORS_ALLOWED_ORIGINS = [
     "https://cf-refactor-tool.vercel.app",  # Your frontend URL
-    "http://localhost:3000",               # For local development
+    # "http://localhost:3000",               # For local development
 ]
 
 # CORS_ALLOWED_ORIGINS = os.environ.get("CORS_ALLOWED_ORIGINS", "").split(",")
