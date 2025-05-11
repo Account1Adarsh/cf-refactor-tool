@@ -59,7 +59,7 @@ export default function ProblemMeta({ cfId }) {
     setLoading(true);
     setError('');
     axios
-      .get(`http://localhost:8000/api/solutions/problems/${cfId}/meta/`)
+      .get(`https://cf-refactor-backend.onrender.com/api/solutions/problems/${cfId}/meta/`)
       .then(res => {
         if (res.data.error) throw new Error(res.data.error);
         setMeta(res.data);
