@@ -1,143 +1,107 @@
-
-
+from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework import status
+from rest_framework.decorators import api_view
 
-from .utils.scraper import fetch_top_submission_urls, fetch_code
+from .utils.scraper import (
+    fetch_top_cpp_submission_urls,
+    fetch_problem_statement
+)
 from .utils.ai_client import refactor_and_explain
 
 
-import os
-
-
 class ProblemMetaView(APIView):
+    """
+    GET /api/solutions/problems/<problem_id>/meta/
+    Returns the problem statement and top 3 C++ solution URLs.
+    """
     def get(self, request, problem_id):
         try:
-            statement = fetch_problem_statement(problem_id)
-            submissions = fetch_top_submission_urls(problem_id, limit=3)
+            statement   = fetch_problem_statement(problem_id)
+            submissions = fetch_top_cpp_submission_urls(problem_id, limit=3)
             return Response({
                 "problem_statement": statement,
                 "submission_links": submissions
             })
         except Exception as e:
-            return Response({"error": str(e)}, status=500)
+            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 class TopSubmissionsView(APIView):
     """
-    POST {"cf_id": "2051A"} → { "urls": [ ...top 5 URLs... ] }
+    POST /api/solutions/top-submissions/
+    Body: { "cf_id": "1234A" }
+    Returns the top 5 C++ solution URLs.
     """
     def post(self, request):
         cf_id = request.data.get('cf_id')
         if not cf_id:
             return Response(
-                {'error': 'cf_id is required'},
+                {"error": "cf_id is required"},
                 status=status.HTTP_400_BAD_REQUEST
             )
         try:
-            urls = fetch_top_submission_urls(cf_id, limit=5)
-            return Response({'urls': urls})
+            urls = fetch_top_cpp_submission_urls(cf_id, limit=5)
+            return Response({"urls": urls})
         except Exception as e:
             return Response(
-                {'error': str(e)},
+                {"error": str(e)},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
 
-
-class FetchCodeView(APIView):
-    """
-    POST {"url": "<CF submission URL>"} → { "code": "<raw source>" }
-    """
-    def post(self, request):
-        url = request.data.get('url')
-        if not url:
-            return Response(
-                {'error': 'Submission URL is required'},
-                status=status.HTTP_400_BAD_REQUEST
-            )
-        try:
-            code = fetch_code(url)
-            return Response({'code': code})
-        except Exception as e:
-            return Response(
-                {'error': str(e)},
-                status=status.HTTP_500_INTERNAL_SERVER_ERROR
-            )
-
-
-
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from rest_framework import status
-
-from .utils.scraper import fetch_code, fetch_problem_statement
-from .utils.ai_client import refactor_and_explain
 
 class RefactorCodeView(APIView):
     """
-    POST {
-      "submission_url": "...",   # optional
-      "code": "...",             # optional if submission_url given
-      "cf_id": "1234A"           # optional, for context
+    POST /api/solutions/refactor-code/
+    Body: {
+      "code": "...",     # raw C++ code pasted by user
+      "cf_id": "1234A"   # optional, for context
     }
-    → {
-      "refactored": "...",
-      "explanation": "..."
-    }
+    Returns:
+      { "refactored": "...", "explanation": "..." }
     """
     def post(self, request):
-        submission_url = request.data.get('submission_url')
-        cf_id          = request.data.get('cf_id')
-        code           = request.data.get('code')
-
-        # 1) If a URL was provided, fetch the raw code
-        if submission_url:
-            try:
-                code = fetch_code(submission_url)
-            except Exception as e:
-                return Response(
-                    {'error': f"Failed to fetch code: {e}"},
-                    status=status.HTTP_500_INTERNAL_SERVER_ERROR
-                )
+        code  = request.data.get('code')
+        cf_id = request.data.get('cf_id', "")
 
         if not code:
             return Response(
-                {'error': 'Provide either submission_url or code'},
+                {"error": 'Field "code" is required'},
                 status=status.HTTP_400_BAD_REQUEST
             )
 
-        # 2) Optionally fetch the problem statement for context
+        # Optionally fetch the problem statement
         statement = ""
         if cf_id:
             try:
                 statement = fetch_problem_statement(cf_id)
             except Exception:
-                # If it fails, we’ll proceed without it
+                # proceed without it
                 pass
 
-        # 3) Call the AI client
         try:
             result = refactor_and_explain(code, statement)
             return Response(result)
         except Exception as e:
             return Response(
-                {'error': f"AI processing failed: {e}"},
+                {"error": f"AI processing failed: {e}"},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
 
-from rest_framework.decorators import api_view
-from rest_framework.response import Response
-from .utils.scraper import fetch_problem_statement, fetch_top_submission_urls
 
 @api_view(['GET'])
 def get_problem_metadata(request, cf_id):
+    """
+    GET /api/solutions/problems/<cf_id>/meta-func/
+    Returns the problem statement and top 3 C++ solution URLs
+    (function-based version of ProblemMetaView).
+    """
     try:
-        problem_statement = fetch_problem_statement(cf_id)
-        submission_links = fetch_top_submission_urls(cf_id, limit=3)
+        statement   = fetch_problem_statement(cf_id)
+        submissions = fetch_top_cpp_submission_urls(cf_id, limit=3)
         return Response({
-            "problem_statement": problem_statement,
-            "submission_links": submission_links
+            "problem_statement": statement,
+            "submission_links": submissions
         })
     except Exception as e:
-        return Response({"error": str(e)}, status=500)
+        return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
