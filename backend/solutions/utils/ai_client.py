@@ -42,9 +42,9 @@ def refactor_and_explain(code: str, statement: str = "") -> dict:
 
     prompt_parts.append(
         "### Instructions:\n"
-        "1. Refactor the code to improve readability **without changing its logic**.\n"
+        "1. Refactor the code to improve readability **without changing its logic** as well as remove extra unecessary code/templates to improve redabilty.\n"
         "2. Add clear, inline comments explaining each step (mark comments distinctly).\n"
-        "3. At the end, provide a section titled `### Explanation:` summarizing how this solution "
+        "3. At the end, provide a section titled `### Explanation:` summarizing and explaining how this solution "
         "solves the problem in the context of the statement.\n"
     )
 
