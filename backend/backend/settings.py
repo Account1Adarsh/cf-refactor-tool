@@ -25,7 +25,8 @@ SECRET_KEY = 'django-insecure-@q4$47o3yki!+8&v2btwzmz$aighf00qt&h2n%wbe2(f2ax=jo
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["cf-refactor-backend.onrender.com", "localhost", "127.0.0.1"]
+
 
 
 
