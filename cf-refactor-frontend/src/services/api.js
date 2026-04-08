@@ -4,13 +4,23 @@ import axios from 'axios';
 // const API_BASE_URL = 'http://localhost:8000/api/';
 const API_BASE_URL = 'https://cf-refactor-backend.onrender.com/api/';
 
+const extractError = (error, defaultMessage) => {
+    if (error.response && error.response.data && error.response.data.error) {
+        return new Error(error.response.data.error);
+    }
+    if (error.message) {
+        return new Error(error.message);
+    }
+    return new Error(defaultMessage);
+};
+
 export const fetchTopSubmissions = async (cf_id) => {
     try {
         const response = await axios.post(`${API_BASE_URL}solutions/top-submissions/`, { cf_id });
         return response.data.urls;
     } catch (error) {
         console.error('Error fetching top submissions:', error);
-        throw error;
+        throw extractError(error, 'Failed to fetch top submissions. Please check the Problem ID and try again.');
     }
 };
 
@@ -20,7 +30,7 @@ export const fetchCodeFromURL = async (url) => {
         return response.data.code;
     } catch (error) {
         console.error('Error fetching code:', error);
-        throw error;
+        throw extractError(error, 'Failed to fetch the code from the provided URL.');
     }
 };
 
@@ -30,6 +40,6 @@ export const refactorCode = async (code, submission_url, cf_id) => {
         return response.data;
     } catch (error) {
         console.error('Error refactoring code:', error);
-        throw error;
+        throw extractError(error, 'Failed to refactor the code. The server might be busy or the request is invalid.');
     }
 };
