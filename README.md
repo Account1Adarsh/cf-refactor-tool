@@ -40,7 +40,7 @@ and serves them via a Django + React stack.
 * **Frontend**: React, Axios
 * **Scraping**: BeautifulSoup / Codeforces API
 * **AI Integration**: Google Gemini API
-* **Deployment**: Docker, GitHub Actions for CI
+* **Deployment**: GitHub Actions for CI
 
 ---
 

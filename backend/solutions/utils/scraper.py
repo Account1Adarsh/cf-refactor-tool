@@ -32,7 +32,7 @@ def retry(max_attempts: int = 3, initial_delay: float = 1.0, backoff: float = 2.
 def fetch_top_cpp_submission_urls(cf_id, limit=5):
     contest_id    = ''.join(filter(str.isdigit, cf_id))
     problem_index = ''.join(filter(str.isalpha, cf_id)).upper()
-
+  
     api_url = (
         f"https://codeforces.com/api/contest.status"
         f"?contestId={contest_id}&from=1&count=200"
@@ -71,7 +71,20 @@ def fetch_problem_statement(cf_id: str) -> str:
     problem_idx = ''.join(filter(str.isalpha, cf_id)).upper()
     url = f"https://codeforces.com/contest/{contest_id}/problem/{problem_idx}"
 
-    resp = scraper.get(url)
+    # resp = scraper.get(url)
+    resp=scraper.get(
+        url,
+        headers={
+            "User-Agent": (
+                "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+                "AppleWebKit/537.36 (KHTML, like Gecko) "
+                "Chrome/137.0.0.0 Safari/537.36"
+            ),
+            "Referer": "https://codeforces.com/",
+            "Accept-Language": "en-US,en;q=0.9",
+        },
+        timeout=15
+    )
     resp.raise_for_status()
     soup = BeautifulSoup(resp.text, 'html.parser')
     stmt_div = soup.find('div', class_='problem-statement')
